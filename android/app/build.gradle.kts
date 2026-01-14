@@ -3,10 +3,20 @@ plugins {
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
+
 android {
     namespace = "com.example.task_manager"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+
+    ndkVersion = "27.0.12077973" // Match your NDK version
+
+    defaultConfig {
+        applicationId = "com.example.task_manager"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -17,34 +27,30 @@ android {
         jvmTarget = "17"
     }
 
-    defaultConfig {
-        applicationId = "com.example.task_manager"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-    }
-
     buildTypes {
-        release {
+        getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
 
-            // Completely disable stripping of native symbols
+            // Disable stripping of debug symbols to avoid the 'strip native libraries' error
             ndk {
                 debugSymbolLevel = "none"
             }
 
+            // Legacy JNI packaging fixes Windows and GitHub CI builds
             packaging {
                 jniLibs {
                     useLegacyPackaging = true
                 }
             }
         }
+
+        getByName("debug") {
+            isDebuggable = true
+        }
     }
 }
-
 
 flutter {
     source = "../.."
