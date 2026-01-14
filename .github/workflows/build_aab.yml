@@ -12,40 +12,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
-      - name: Checkout code
+      # 1. Checkout your repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Flutter
+      # 2. Set up Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.38.6"
+          flutter-version: "3.38.6"  # Match your Flutter version
 
-      # 3️⃣ Accept Android licenses
-      - name: Accept Android licenses
-        run: yes | flutter doctor --android-licenses
-
-      # 4️⃣ Setup Android SDK and tools
+      # 3. Install Android SDK components
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
+          target: android-36
+          arch: x86_64
           ndk: 27.0.12077973
           cmake: 3.22.1
-          # build-tools is optional; defaults to latest if not provided
+          force-avd-creation: false
 
-      # 5️⃣ Install dependencies
+      # 4. Accept licenses
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses
+
+      # 5. Get Flutter dependencies
       - name: Flutter pub get
         run: flutter pub get
 
-      # 6️⃣ Build Release AppBundle
+      # 6. Build the release AAB
       - name: Build Release AAB
         run: flutter build appbundle --release --no-tree-shake-icons
 
-      # 7️⃣ Upload AAB artifact
-      - name: Upload Release AAB
+      # 7. Upload the AAB as artifact
+      - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: release-aab
+          name: app-release
           path: build/app/outputs/bundle/release/app-release.aab
