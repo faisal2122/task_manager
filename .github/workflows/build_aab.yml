@@ -12,36 +12,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ Checkout code
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # 1️⃣ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # 2️⃣ Set up Flutter
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: "3.38.6"
+      # 2️⃣ Set up Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.6"
 
-    # 3️⃣ Install dependencies
-    - name: Flutter pub get
-      run: flutter pub get
+      # 3️⃣ Install dependencies
+      - name: Flutter pub get
+        run: flutter pub get
 
-    # 4️⃣ Accept Android licenses
-    - name: Accept Android licenses
-      run: yes | flutter doctor --android-licenses
+      # 4️⃣ Set up Android SDK, NDK, CMake, and build tools
+      - name: Setup Android SDK
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: android-36
+          arch: x86_64
+          ndk: 27.0.12077973
+          build-tools: 36.1.0
+          cmake: 3.22.1
+          force-avd-creation: false
+          emulator-options: "-no-window -no-audio -no-boot-anim"
 
-    # 5️⃣ Ensure required Android SDK & NDK
-    - name: Install Android SDK, build tools, NDK
-      run: |
-        sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.1.0" "ndk;27.0.12077973" "cmake;3.22.1"
+      # 5️⃣ Accept Android licenses
+      - name: Accept Android licenses
+        run: yes | flutter doctor --android-licenses
 
-    # 6️⃣ Build release AAB
-    - name: Build Release AppBundle
-      run: flutter build appbundle --release --no-tree-shake-icons
+      # 6️⃣ Build release AAB
+      - name: Build Release AppBundle
+        run: flutter build appbundle --release --no-tree-shake-icons
 
-    # 7️⃣ Upload AAB artifact
-    - name: Upload AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: release-aab
-        path: build/app/outputs/bundle/release/app-release.aab
+      # 7️⃣ Upload AAB artifact
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
