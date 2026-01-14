@@ -1,41 +1,47 @@
-name: Build Flutter AAB
+name: Build Flutter Release AAB
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build Release AAB
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # 1️⃣ Checkout code
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+    # 2️⃣ Set up Flutter
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "3.38.6"
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.38.6'
-          channel: stable
+    # 3️⃣ Install dependencies
+    - name: Flutter pub get
+      run: flutter pub get
 
-      - name: Flutter doctor
-        run: flutter doctor -v
+    # 4️⃣ Accept Android licenses
+    - name: Accept Android licenses
+      run: yes | flutter doctor --android-licenses
 
-      - name: Install dependencies
-        run: flutter pub get
+    # 5️⃣ Ensure required Android SDK & NDK
+    - name: Install Android SDK, build tools, NDK
+      run: |
+        sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.1.0" "ndk;27.0.12077973" "cmake;3.22.1"
 
-      - name: Build AppBundle (AAB)
-        run: flutter build appbundle --release
+    # 6️⃣ Build release AAB
+    - name: Build Release AppBundle
+      run: flutter build appbundle --release --no-tree-shake-icons
 
-      - name: Upload AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+    # 7️⃣ Upload AAB artifact
+    - name: Upload AAB
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-aab
+        path: build/app/outputs/bundle/release/app-release.aab
