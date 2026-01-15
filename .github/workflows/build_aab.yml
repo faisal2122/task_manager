@@ -2,8 +2,7 @@ name: Build Flutter AAB
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -11,33 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      # 2. Setup Flutter
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.38.6"
 
-      # 3. Setup Android SDK, NDK, CMake (no emulator)
-      - name: Setup Android SDK, NDK, CMake
+      # THIS installs Android SDK + sdkmanager
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Now sdkmanager exists
+      - name: Install Android components
         run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip wget
-          yes | sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.1.0" "ndk;27.0.12077973" "cmake;3.22.1"
+          yes | sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.1.0" \
+            "ndk;27.0.12077973" \
+            "cmake;3.22.1"
           yes | sdkmanager --licenses
 
-      # 4. Install Flutter dependencies
       - name: Flutter pub get
         run: flutter pub get
 
-      # 5. Build release AAB
-      - name: Build Release AAB
+      - name: Build AAB
         run: flutter build appbundle --release --no-tree-shake-icons
 
-      # 6. Upload AAB artifact
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
