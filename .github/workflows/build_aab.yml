@@ -17,10 +17,15 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0' # Use a Flutter stable version with Dart >= 3.8
+          flutter-version: '3.13.0' # Flutter stable version with Dart >= 3.8
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build Release AppBundle
         run: flutter build appbundle --release --no-tree-shake-icons
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
