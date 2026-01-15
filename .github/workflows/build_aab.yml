@@ -4,31 +4,30 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build Release AAB
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # 1️⃣ Checkout the repo
+      - uses: actions/checkout@v3
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      # 2️⃣ Setup Flutter
+      - uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: "3.38.6"
 
-      - name: Flutter Version
-        run: flutter --version
+      # 3️⃣ Install dependencies
+      - run: flutter pub get
 
-      - name: Get Packages
-        run: flutter pub get
+      # 4️⃣ Build the release AAB without stripping debug symbols
+      - run: flutter build appbundle --release --no-tree-shake-icons
 
-      - name: Build App Bundle
-        run: flutter build appbundle --release
-
-      - name: Upload AAB
-        uses: actions/upload-artifact@v4
+      # 5️⃣ Upload the generated AAB as an artifact
+      - uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-release.aab
           path: build/app/outputs/bundle/release/app-release.aab
