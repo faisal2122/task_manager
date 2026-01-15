@@ -8,7 +8,7 @@ android {
     namespace = "com.example.task_manager"
     compileSdk = flutter.compileSdkVersion
 
-    ndkVersion = "27.0.12077973" // Match your NDK version
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
         applicationId = "com.example.task_manager"
@@ -27,23 +27,19 @@ android {
         jvmTarget = "17"
     }
 
+    // 🔥 This is what fixes your strip debug symbols error
+    packagingOptions {
+        doNotStrip("**/*.so")
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-
-            // Disable stripping of debug symbols to avoid the 'strip native libraries' error
-            ndk {
-                debugSymbolLevel = "none"
-            }
-
-            // Legacy JNI packaging fixes Windows and GitHub CI builds
-            packaging {
-                jniLibs {
-                    useLegacyPackaging = true
-                }
-            }
         }
 
         getByName("debug") {
