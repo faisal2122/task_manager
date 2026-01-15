@@ -2,59 +2,25 @@ name: Build AAB
 
 on:
   push:
-<<<<<<< HEAD
-    branches: [main]
-=======
     branches:
       - main
->>>>>>> 83245035eadc6695fbd04497152193fd40e66216
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build Release AAB
     runs-on: ubuntu-latest
-    env:
-      FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable
 
     steps:
-<<<<<<< HEAD
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # Install Flutter
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.6'
+          flutter-version: '3.10.6'  # Or your Flutter stable version
 
-      # Accept Android SDK licenses
-      - name: Accept Android licenses
-        run: yes | sdkmanager --licenses
+      - name: Install dependencies
+        run: flutter pub get
 
-      # Ensure Gradle wrapper is executable
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      # Build AAB without tree-shaking icons
-      - name: Build release AAB
+      - name: Build Release AppBundle
         run: flutter build appbundle --release --no-tree-shake-icons
-=======
-      # 1️⃣ Checkout the repo
-      - uses: actions/checkout@v3
-
-      # 2️⃣ Setup Flutter
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.38.6"
-
-      # 3️⃣ Install dependencies
-      - run: flutter pub get
-
-      # 4️⃣ Build the release AAB without stripping debug symbols
-      - run: flutter build appbundle --release --no-tree-shake-icons
-
-      # 5️⃣ Upload the generated AAB as an artifact
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-release.aab
-          path: build/app/outputs/bundle/release/app-release.aab
->>>>>>> 83245035eadc6695fbd04497152193fd40e66216
