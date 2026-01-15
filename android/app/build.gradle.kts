@@ -33,12 +33,12 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
 
-            // Disable stripping of debug symbols to avoid the 'strip native libraries' error
+            // Disable stripping of debug symbols
             ndk {
                 debugSymbolLevel = "none"
             }
 
-            // Legacy JNI packaging fixes Windows and GitHub CI builds
+            // Legacy JNI packaging fixes CI builds
             packaging {
                 jniLibs {
                     useLegacyPackaging = true
